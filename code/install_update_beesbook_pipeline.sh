@@ -33,8 +33,8 @@ fi
 
 # List of GitHub repositories and their package names, separated by a space
 REPOS=(
-    "git+https://github.com/BioroboticsLab/bb_binary@update bb_binary"
-    "git+https://github.com/BioroboticsLab/bb_pipeline@update bb_pipeline"
+    "git+https://github.com/BioroboticsLab/bb_binary bb_binary"
+    "git+https://github.com/BioroboticsLab/bb_pipeline bb_pipeline"
     "git+https://github.com/BioroboticsLab/bb_tracking bb_tracking"
     "git+https://github.com/BioroboticsLab/bb_behavior bb_behavior"
     "git+https://github.com/BioroboticsLab/bb_utils bb_utils"
