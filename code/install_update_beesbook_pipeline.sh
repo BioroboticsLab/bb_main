@@ -61,19 +61,19 @@ mkdir -p $MODEL_DIR
 
 # Download the model files if they don't already exist.  Also download the tracklet model file
 if [ ! -f "$MODEL_DIR/decoder_2019_keras3.h5" ]; then
-    wget -O $MODEL_DIR/decoder_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/update/models/decoder/decoder_2019_keras3.h5?raw=true"
+    wget -O $MODEL_DIR/decoder_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/decoder/decoder_2019_keras3.h5?raw=true"
 fi
 if [ ! -f "$MODEL_DIR/localizer_2019_keras3.h5" ]; then
-    wget -O $MODEL_DIR/localizer_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/update/models/saliency/localizer_2019_keras3.h5?raw=true"
+    wget -O $MODEL_DIR/localizer_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/saliency/localizer_2019_keras3.h5?raw=true"
 fi
 if [ ! -f "$MODEL_DIR/localizer_2019_attributes.json" ]; then
-    wget -O $MODEL_DIR/localizer_2019_attributes.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/update/models/saliency/localizer_2019_attributes.json?raw=true"
+    wget -O $MODEL_DIR/localizer_2019_attributes.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/saliency/localizer_2019_attributes.json?raw=true"
 fi
 if [ ! -f "$MODEL_DIR/detection_model_4.json" ]; then
-    wget -O $MODEL_DIR/detection_model_4.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/update/models/tracking/detection_model_4.json?raw=true"
+    wget -O $MODEL_DIR/detection_model_4.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/tracking/detection_model_4.json?raw=true"
 fi
 if [ ! -f "$MODEL_DIR/tracklet_model_8.json" ]; then
-    wget -O $MODEL_DIR/tracklet_model_8.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/update/models/tracking/tracklet_model_8.json?raw=true"
+    wget -O $MODEL_DIR/tracklet_model_8.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/tracking/tracklet_model_8.json?raw=true"
 fi
 
 # Update pipeline/config.ini to point to local model files
