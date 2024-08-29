@@ -4,8 +4,8 @@ This repository contains the Beesbook Wiki and related resources, including exam
 
 ## Pages:
 - [Overview (Wiki Home)](https://github.com/BioroboticsLab/bb_main/wiki)
-- [Hardware Setup](https://github.com/BioroboticsLab/bb_main/wiki/Hardware-Setup)
-- [Software: Detection and Tracking Pipeline](https://github.com/BioroboticsLab/bb_main/wiki/Software:-Detection-and-Tracking-Pipeline)
-- [Software: Legacy](https://github.com/BioroboticsLab/bb_main/wiki/Software:-Legacy)
-- [Tools for Data Analysis and Running](https://github.com/BioroboticsLab/bb_main/wiki/Tools-for-Data-Analysis-and-Running)
-- [Waggle Dance Detection](https://github.com/BioroboticsLab/bb_main/wiki/Waggle-Dance-Detection)
+- [Hardware Setup](https://github.com/BioroboticsLab/bb_main/wiki/Hardware-Beesbook)
+- [Software: Detection and Tracking Pipeline](https://github.com/BioroboticsLab/bb_main/wiki/Software-Beesbook)
+- [Software: Legacy](https://github.com/BioroboticsLab/bb_main/wiki/Software-Legacy)
+- [Tools for Data Analysis and Running](https://github.com/BioroboticsLab/bb_main/wiki/Tools-Data-Analysis)
+- [Waggle Dance Detection](https://github.com/BioroboticsLab/bb_main/wiki/Waggle-Dance)
