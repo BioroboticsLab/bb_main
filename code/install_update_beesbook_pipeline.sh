@@ -99,4 +99,7 @@ else
     sed -i "s|attributes_path=localizer_2019_attributes.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|g" $CONFIG_FILE
 fi
 
+# this seems to be needed at the end, in order to avoid an error in running jupyter lab
+conda install -y -c conda-forge sqlite
+
 echo "Installation and update completed."
