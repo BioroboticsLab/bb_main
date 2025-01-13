@@ -12,7 +12,6 @@ PYTHON_VERSION="3.12"
 CUDA_VERSION="12.4.1"  #  should match the versions and be available on https://anaconda.org/nvidia/cuda-toolkit and https://anaconda.org/nvidia/cuda
 CUDA_VERSION_SHORT="${CUDA_VERSION%.*}"  # Short format, e.g., 12.4, for PyTorch compatibility
 
-
 # Check if the Conda environment exists
 if conda env list | grep -q "$ENV_NAME"; then
     echo "Conda environment '$ENV_NAME' already exists. Activating..."
@@ -31,9 +30,9 @@ echo "Installing core Python packages..."
 conda install --yes python="$PYTHON_VERSION"  # in case the environment already exists
 conda install --yes jupyterlab matplotlib scipy seaborn jupyter numpy ffmpeg dill tqdm chardet
 python -m pip install cairocffi  # install with pip because it's faster
-conda install --yes -c conda-forge lapack blas
+conda install --yes -c conda-forge lapack blas sqlite
 
-
+ 
 # Install TensorFlow
 echo "Installing tensorflow"
 if [[ "$OSTYPE" == "darwin"* ]]; then
