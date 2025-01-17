@@ -100,8 +100,9 @@ else
 fi
 
 # January 2025. These commands are needed in order for compatibility with Ubuntu 24
-conda install -y -c conda-forge sqlite
-
+conda install -y -c conda-forge sqlite  # needed to start jupyter lab
+# addresses error:  Error loading model: 'super' object has no attribute '__sklearn_tags__'
+# as of January 2025, there seems to be an incompatibility with xgboost and the latest version of scikit-learn
 python -m pip uninstall scikit-learn -y
 python -m pip uninstall xgboost -y
 conda clean --all -y
