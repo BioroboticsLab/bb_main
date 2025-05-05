@@ -80,11 +80,11 @@ MODEL_DIR="$CONDA_PREFIX/pipeline_models"
 mkdir -p $MODEL_DIR
 
 # Download and replace model files
-wget -O $MODEL_DIR/decoder_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/decoder/decoder_2019_keras3.h5?raw=true"
-wget -O $MODEL_DIR/localizer_2019_keras3.h5 "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/saliency/localizer_2019_keras3.h5?raw=true"
-wget -O $MODEL_DIR/localizer_2019_attributes.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/saliency/localizer_2019_attributes.json?raw=true"
-wget -O $MODEL_DIR/detection_model_4.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/tracking/detection_model_4.json?raw=true"
-wget -O $MODEL_DIR/tracklet_model_8.json "https://github.com/BioroboticsLab/bb_pipeline_models/blob/master/models/tracking/tracklet_model_8.json?raw=true"
+wget -O $MODEL_DIR/decoder_2019_keras3.h5 https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/decoder/decoder_2019_keras3.h5
+wget -O $MODEL_DIR/localizer_2019_keras3.h5 https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/saliency/localizer_2019_keras3.h5
+wget -O $MODEL_DIR/localizer_2019_attributes.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/saliency/localizer_2019_attributes.json
+wget -O $MODEL_DIR/detection_model_4.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/tracking/detection_model_4.json
+wget -O $MODEL_DIR/tracklet_model_8.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/tracking/tracklet_model_8.json
 
 # Update pipeline/config.ini to point to local model files
 if [[ "$OSTYPE" == "darwin"* ]]; then
