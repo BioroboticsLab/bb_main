@@ -1,111 +1,109 @@
 #!/bin/bash
-
-# Exit if any command fails
+# Exit on any error
 set -e
 
-# Source conda setup to ensure conda commands are available
+# Make sure conda is available
 eval "$(conda shell.bash hook)"
 
-# Configuration
+### Configuration ###
 ENV_NAME="beesbook"
 PYTHON_VERSION="3.12"
-CUDA_VERSION="12.4.1"  #  should match the versions and be available on https://anaconda.org/nvidia/cuda-toolkit and https://anaconda.org/nvidia/cuda
-CUDA_VERSION_SHORT="${CUDA_VERSION%.*}"  # Short format, e.g., 12.4, for PyTorch compatibility
 
-# Check if the Conda environment exists
-if conda env list | grep -q "$ENV_NAME"; then
-    echo "Conda environment '$ENV_NAME' already exists. Activating..."
+# Update to latest CUDA supported by PyTorch (2.7.0): CUDA 12.8
+CUDA_VERSION="12.8"
+CUDA_VERSION_SHORT="${CUDA_VERSION}"
+
+### Create or activate env ###
+if conda env list | grep -q "^${ENV_NAME} "; then
+  echo "Activating existing environment '$ENV_NAME'…"
 else
-    echo "Creating Conda environment '$ENV_NAME' with Python $PYTHON_VERSION..."
-    conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
+  echo "Creating environment '$ENV_NAME' with Python $PYTHON_VERSION…"
+  conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
 fi
-
 conda activate "$ENV_NAME"
 
-# Ensure pip is correctly installed in this Conda environment
-conda install -n "$ENV_NAME" pip -y
+### Core tooling ###
+conda install -y pip
+python -m pip install --upgrade pip
+python -m pip cache purge
+echo "Installing core Python packages…"
+conda install -y \
+  jupyterlab matplotlib scipy seaborn numpy ffmpeg dill tqdm chardet \
+  -c conda-forge
+python -m pip install cairocffi
+conda install -y -c conda-forge lapack blas sqlite
 
-# Install core Python packages
-echo "Installing core Python packages..."
-conda install --yes python="$PYTHON_VERSION"  # in case the environment already exists
-conda install --yes jupyterlab matplotlib scipy seaborn jupyter numpy ffmpeg dill tqdm chardet
-python -m pip install cairocffi  # install with pip because it's faster
-conda install --yes -c conda-forge lapack blas sqlite
-
- 
-# Install TensorFlow
-echo "Installing tensorflow"
+### TensorFlow ###
+echo "Installing TensorFlow (with GPU support if available)…"
+conda install -y -c conda-forge tensorflow
+### PyTorch ###
+echo "Installing PyTorch 2.x "
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    conda install -y pytorch::pytorch torchvision torchaudio -c pytorch
-    conda install -y conda-forge::tensorflow
+  python -m pip install torch torchvision torchaudio
 else
-    # Install CUDA toolkit and cuDNN via conda
-    echo "Installing CUDA Toolkit $CUDA_VERSION and compatible cuDNN version via conda..."
-    conda install -y nvidia/label/cuda-"$CUDA_VERSION"::cuda
-    conda install -y nvidia/label/cuda-"$CUDA_VERSION"::cuda-toolkit
-    conda install -y nvidia::cudnn
-
-    # Install PyTorch with specified CUDA version
-    echo "Installing PyTorch with CUDA $CUDA_VERSION_SHORT..."
-    conda install -y pytorch torchvision torchaudio pytorch-cuda="$CUDA_VERSION_SHORT" -c pytorch -c nvidia
-    conda install -y conda-forge::tensorflow-gpu
+  python -m pip install \
+    --no-cache-dir \
+    --index-url https://download.pytorch.org/whl/cu128 \
+    torch torchvision torchaudio  
 fi
 
-# List of GitHub repositories and their package names
-REPOS=(
-    "git+https://github.com/BioroboticsLab/bb_binary bb_binary"
-    "git+https://github.com/BioroboticsLab/bb_pipeline bb_pipeline"
-    "git+https://github.com/BioroboticsLab/bb_tracking bb_tracking"
-    "git+https://github.com/BioroboticsLab/bb_behavior bb_behavior"
-    "git+https://github.com/BioroboticsLab/bb_utils bb_utils"
-)
 
-# Install or update each repository and their dependencies
-for repo in "${REPOS[@]}"; do
-    # Split the string into URL and package name
-    repo_url=$(echo "$repo" | awk '{print $1}')
-    package_name=$(echo "$repo" | awk '{print $2}')
-    # Uninstall the package
-    python -m pip uninstall -y "$package_name"
-    # Install or upgrade the package using pip
-    python -m pip install --upgrade "$repo_url"
+
+### Your BB packages ###
+REPOS=(
+  "git+https://github.com/BioroboticsLab/bb_binary bb_binary"
+  "git+https://github.com/BioroboticsLab/bb_pipeline bb_pipeline"
+  "git+https://github.com/BioroboticsLab/bb_tracking bb_tracking"
+  "git+https://github.com/BioroboticsLab/bb_behavior bb_behavior"
+  "git+https://github.com/BioroboticsLab/bb_utils bb_utils"
+)
+echo "Installing/updating BB packages…"
+for entry in "${REPOS[@]}"; do
+  url=${entry%% *}
+  pkg=${entry##* }
+  python -m pip uninstall -y "$pkg"
+  python -m pip install --upgrade "$url"
 done
 
-# Locate the bb_pipeline package directory
-BB_PIPELINE_DIR=$(python -c "import pipeline; print('pipeline_path:'); print(pipeline.__path__[0])" | awk '/^pipeline_path:/{getline; print}')
+### Model files ###
+BB_PIPELINE_DIR=$(python -c "import pipeline; print(pipeline.__path__[0])")
 CONFIG_FILE="$BB_PIPELINE_DIR/config.ini"
-
-# Re-download the model files and overwrite if they exist
 MODEL_DIR="$CONDA_PREFIX/pipeline_models"
-mkdir -p $MODEL_DIR
+mkdir -p "$MODEL_DIR"
 
-# Download and replace model files
-wget -O $MODEL_DIR/decoder_2019_keras3.h5 https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/decoder/decoder_2019_keras3.h5
-wget -O $MODEL_DIR/localizer_2019_keras3.h5 https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/saliency/localizer_2019_keras3.h5
-wget -O $MODEL_DIR/localizer_2019_attributes.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/saliency/localizer_2019_attributes.json
-wget -O $MODEL_DIR/detection_model_4.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/tracking/detection_model_4.json
-wget -O $MODEL_DIR/tracklet_model_8.json https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/tracking/tracklet_model_8.json
+echo "Downloading model files…"
+for f in \
+  decoder_2019_keras3.h5 \
+  localizer_2019_keras3.h5 \
+  localizer_2019_attributes.json \
+  detection_model_4.json \
+  tracklet_model_8.json
+do
+  wget -q -O "$MODEL_DIR/$f" \
+    "https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/${f//_keras3.h5/decoder/}${f}"
+done
 
-# Update pipeline/config.ini to point to local model files
+echo "Patching config.ini…"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # MacOS
-    sed -i '' "s|model_path=decoder_2019_keras3.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|g" "$CONFIG_FILE"
-    sed -i '' "s|model_path=localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|g" "$CONFIG_FILE"
-    sed -i '' "s|attributes_path=localizer_2019_attributes.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|g" "$CONFIG_FILE"
+  sed -i '' \
+    -e "s|model_path=.*\.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
+    -e "s|model_path=.*localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|attributes_path=.*\.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
+    "$CONFIG_FILE"
 else
-    # Linux
-    sed -i "s|model_path=decoder_2019_keras3.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|g" $CONFIG_FILE
-    sed -i "s|model_path=localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|g" $CONFIG_FILE
-    sed -i "s|attributes_path=localizer_2019_attributes.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|g" $CONFIG_FILE
+  sed -i \
+    -e "s|model_path=.*\.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
+    -e "s|model_path=.*localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|attributes_path=.*\.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
+    "$CONFIG_FILE"
 fi
 
-# January 2025. These commands are needed in order for compatibility with Ubuntu 24
-conda install -y -c conda-forge sqlite  # needed to start jupyter lab
-# addresses error:  Error loading model: 'super' object has no attribute '__sklearn_tags__'
-# as of January 2025, there seems to be an incompatibility with xgboost and the latest version of scikit-learn
-python -m pip uninstall scikit-learn -y
-python -m pip uninstall xgboost -y
+### Fix sklearn/xgboost and other issues ###
+echo "Ensuring compatible scikit-learn & xgboost…"
+python -m pip uninstall -y scikit-learn xgboost
 conda clean --all -y
-conda install -c conda-forge xgboost scikit-learn=1.5.2 -y
+conda install -y -c conda-forge \
+  scikit-learn=1.5.2 xgboost
+conda install -y -c conda-forge libgfortran=3  
 
-echo "Installation and update completed."
+echo "Installation/update complete."
