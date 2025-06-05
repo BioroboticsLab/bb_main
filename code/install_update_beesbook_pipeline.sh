@@ -66,7 +66,7 @@ for entry in "${REPOS[@]}"; do
 done
 
 ### Model files ###
-BB_PIPELINE_DIR=$(python -c "import pipeline; print(pipeline.__path__[0])")
+BB_PIPELINE_DIR=$(python -c "import sys; from io import StringIO; sys.stdout = StringIO(); import pipeline; sys.stdout = sys.__stdout__; print(pipeline.__path__[0])")
 CONFIG_FILE="$BB_PIPELINE_DIR/config.ini"
 MODEL_DIR="$CONDA_PREFIX/pipeline_models"
 mkdir -p "$MODEL_DIR"
@@ -123,5 +123,6 @@ fi
 # conda install -y -c conda-forge \
 #   scikit-learn=1.5.2 xgboost
 # conda install -y -c conda-forge libgfortran=3  
+conda install -y -c conda-forge cairo freetype
 
 echo "Installation/update complete."
