@@ -79,31 +79,49 @@ for f in \
   detection_model_4.json \
   tracklet_model_8.json
 do
+  # Choose the correct subdirectory based on the filename
+  case "$f" in
+    decoder_2019_keras3.h5)
+      subdir="decoder"
+      ;;
+    localizer_2019_keras3.h5|localizer_2019_attributes.json)
+      subdir="saliency"
+      ;;
+    detection_model_4.json|tracklet_model_8.json)
+      subdir="tracking"
+      ;;
+    *)
+      echo "ERROR: don't know where to find $f" >&2
+      exit 1
+      ;;
+  esac
+
+  # Download from the raw GitHub URL
   wget -q -O "$MODEL_DIR/$f" \
-    "https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/${f//_keras3.h5/decoder/}${f}"
+    "https://raw.githubusercontent.com/BioroboticsLab/bb_pipeline_models/master/models/$subdir/$f"
 done
 
 echo "Patching config.ini…"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   sed -i '' \
-    -e "s|model_path=.*\.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
-    -e "s|model_path=.*localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
-    -e "s|attributes_path=.*\.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
+    -e "s|^model_path=decoder_.*\.h5\$|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
+    -e "s|^model_path=localizer_.*\.h5\$|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
     "$CONFIG_FILE"
 else
   sed -i \
-    -e "s|model_path=.*\.h5|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
-    -e "s|model_path=.*localizer_2019_keras3.h5|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
-    -e "s|attributes_path=.*\.json|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
+    -e "s|^model_path=decoder_.*\.h5\$|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
+    -e "s|^model_path=localizer_.*\.h5\$|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
     "$CONFIG_FILE"
 fi
 
 ### Fix sklearn/xgboost and other issues ###
-echo "Ensuring compatible scikit-learn & xgboost…"
-python -m pip uninstall -y scikit-learn xgboost
-conda clean --all -y
-conda install -y -c conda-forge \
-  scikit-learn=1.5.2 xgboost
-conda install -y -c conda-forge libgfortran=3  
+# echo "Ensuring compatible scikit-learn & xgboost…"
+# python -m pip uninstall -y scikit-learn xgboost
+# conda clean --all -y
+# conda install -y -c conda-forge \
+#   scikit-learn=1.5.2 xgboost
+# conda install -y -c conda-forge libgfortran=3  
 
 echo "Installation/update complete."
