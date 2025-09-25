@@ -124,5 +124,6 @@ fi
 #   scikit-learn=1.5.2 xgboost
 # conda install -y -c conda-forge libgfortran=3  
 conda install -y -c conda-forge cairo freetype
+conda insatll -y -c conda-forge pyarrow fastparquet
 
 echo "Installation/update complete."
