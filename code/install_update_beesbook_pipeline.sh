@@ -33,9 +33,6 @@ conda install -y \
 python -m pip install cairocffi
 conda install -y -c conda-forge lapack blas sqlite
 
-### TensorFlow ###
-echo "Installing TensorFlow (with GPU support if available)…"
-conda install -y -c conda-forge tensorflow
 ### PyTorch ###
 echo "Installing PyTorch 2.x "
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -73,18 +70,18 @@ mkdir -p "$MODEL_DIR"
 
 echo "Downloading model files…"
 for f in \
-  decoder_2019_keras3.h5 \
-  localizer_2019_keras3.h5 \
+  decoder_2019_weights.pt \
+  localizer_2019_weights.pt \
   localizer_2019_attributes.json \
   detection_model_4.json \
   tracklet_model_8.json
 do
   # Choose the correct subdirectory based on the filename
   case "$f" in
-    decoder_2019_keras3.h5)
+    decoder_2019_weights.pt)
       subdir="decoder"
       ;;
-    localizer_2019_keras3.h5|localizer_2019_attributes.json)
+    localizer_2019_weights.pt|localizer_2019_attributes.json)
       subdir="saliency"
       ;;
     detection_model_4.json|tracklet_model_8.json)
@@ -104,14 +101,14 @@ done
 echo "Patching config.ini…"
 if [[ "$OSTYPE" == "darwin"* ]]; then
   sed -i '' \
-    -e "s|^model_path=decoder_.*\.h5\$|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
-    -e "s|^model_path=localizer_.*\.h5\$|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|^model_path=decoder_.*|model_path=$MODEL_DIR/decoder_2019_weights.pt|" \
+    -e "s|^model_path=localizer_.*|model_path=$MODEL_DIR/localizer_2019_weights.pt|" \
     -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
     "$CONFIG_FILE"
 else
   sed -i \
-    -e "s|^model_path=decoder_.*\.h5\$|model_path=$MODEL_DIR/decoder_2019_keras3.h5|" \
-    -e "s|^model_path=localizer_.*\.h5\$|model_path=$MODEL_DIR/localizer_2019_keras3.h5|" \
+    -e "s|^model_path=decoder_.*|model_path=$MODEL_DIR/decoder_2019_weights.pt|" \
+    -e "s|^model_path=localizer_.*|model_path=$MODEL_DIR/localizer_2019_weights.pt|" \
     -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
     "$CONFIG_FILE"
 fi
