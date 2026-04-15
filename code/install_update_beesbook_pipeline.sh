@@ -73,7 +73,8 @@ for f in \
   decoder_2019_weights.pt \
   localizer_2019_weights.pt \
   localizer_2019_attributes.json \
-  polo26_feedercams.torchscript \
+  polo26_feedercams_cpu.torchscript \
+  polo26_feedercams_cuda.torchscript \
   detection_model_4.json \
   tracklet_model_8.json
 do
@@ -82,7 +83,7 @@ do
     decoder_2019_weights.pt)
       subdir="decoder"
       ;;
-    localizer_2019_weights.pt|localizer_2019_attributes.json|polo26_feedercams.torchscript)
+    localizer_2019_weights.pt|localizer_2019_attributes.json|polo26_feedercams_cpu.torchscript|polo26_feedercams_cuda.torchscript)
       subdir="saliency"
       ;;
     detection_model_4.json|tracklet_model_8.json)
@@ -105,14 +106,14 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     -e "s|^model_path=decoder_.*|model_path=$MODEL_DIR/decoder_2019_weights.pt|" \
     -e "s|^model_path=localizer_.*|model_path=$MODEL_DIR/localizer_2019_weights.pt|" \
     -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
-    -e "s|^polo_model_path=.*|polo_model_path=$MODEL_DIR/polo26_feedercams.torchscript|" \
+    -e "s|^polo_model_path=.*|polo_model_path=$MODEL_DIR/polo26_feedercams|" \
     "$CONFIG_FILE"
 else
   sed -i \
     -e "s|^model_path=decoder_.*|model_path=$MODEL_DIR/decoder_2019_weights.pt|" \
     -e "s|^model_path=localizer_.*|model_path=$MODEL_DIR/localizer_2019_weights.pt|" \
     -e "s|^attributes_path=.*\.json\$|attributes_path=$MODEL_DIR/localizer_2019_attributes.json|" \
-    -e "s|^polo_model_path=.*|polo_model_path=$MODEL_DIR/polo26_feedercams.torchscript|" \
+    -e "s|^polo_model_path=.*|polo_model_path=$MODEL_DIR/polo26_feedercams|" \
     "$CONFIG_FILE"
 fi
 
